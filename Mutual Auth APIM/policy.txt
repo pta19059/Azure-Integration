@@ -1,0 +1,60 @@
+<policies>
+    <inbound>
+        <base />
+        
+        <!-- Verifica presenza del certificato -->
+        <set-variable name="clientCertPresent" value="@((context.Request.Certificate != null).ToString())" />
+        <set-variable name="clientThumbprint" value='@((context.Request.Certificate != null) ? context.Request.Certificate.Thumbprint : "None")' />
+
+        <choose>
+            <when condition="@(context.Request.Certificate == null)">
+                <return-response>
+                    <set-status code="403" reason="Forbidden" />
+                    <set-body>@("No certificate provided. Debug: Client Cert Present = " + context.Variables["clientCertPresent"])</set-body>
+                </return-response>
+            </when>
+        </choose>
+
+        <!-- Usa il certificato importato in APIM tramite certificate-id -->
+        <authentication-certificate certificate-id="StefanoCertAPIM" />
+
+        <!-- Verifica certificato con thumbprint atteso -->
+        <choose>
+            <when condition='@(context.Request.Certificate != null && 
+                               context.Request.Certificate.Thumbprint == "0A7ED5452B035C12F14430598E4B57D1D04407D1")'>
+                <set-header name="X-Client-Certificate-Verified" exists-action="override">
+                    <value>true</value>
+                </set-header>
+            </when>
+            <otherwise>
+                <return-response>
+                    <set-status code="403" reason="Forbidden" />
+                    <set-body>@("Invalid certificate. Debug: Received Thumbprint = " + context.Variables["clientThumbprint"])</set-body>
+                </return-response>
+            </otherwise>
+        </choose>
+
+        <!-- Configura il backend -->
+        <set-backend-service id="apim-generated-policy" backend-id="LogicApp_la-cms-integraiton-010_project-integ_9a2037d5f1767f3bf62d449fb7e171b6" />
+        <set-method id="apim-generated-policy">POST</set-method>
+        <rewrite-uri id="apim-generated-policy" template="/manual/paths/invoke/?api-version=2016-06-01&amp;sp=/triggers/manual/run&amp;sv=1.0&amp;sig={{Customers_customer_67d3043381108ebe16178416}}" />
+        <set-header id="apim-generated-policy" name="Ocp-Apim-Subscription-Key" exists-action="delete" />
+    </inbound>
+
+    <backend>
+        <forward-request />
+    </backend>
+
+    <outbound>
+        <base />
+        <choose>
+            <when condition="@((int)context.Response.StatusCode >= 200 && (int)context.Response.StatusCode < 300)">
+                <set-body>@("Certificate is valid. Request succeeded. Debug: Thumbprint = " + context.Variables["clientThumbprint"])</set-body>
+            </when>
+        </choose>
+    </outbound>
+
+    <on-error>
+        <base />
+    </on-error>
+</policies>
