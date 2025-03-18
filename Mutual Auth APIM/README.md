@@ -1,3 +1,3 @@
-<h2><strong>Testing Client Certificate ( Simulated using Powershell Script ) in APIM with Logic App as a Backend.</strong></h2>
+<h2><strong>Testing Client Certificate Authentication in APIM with Logic App as a Backend.</strong></h2>
 <p>&nbsp;</p>
 <h3>Steps Used:<br /><br />1) Created Key Vault -&gt; Access Control (IAM) / RBAC (Key Vault Admin --&gt; User, Key Vault Certificate User --&gt; Managed Identity APIM, Key Vault Secrets User --&gt; User)<br /><br />2) Generated new Certificate Self-Signed in Key Vault<br /><br />3) Imported Certificate in APIM ( Granted List and Get secret management permissions )<br /><br />4) Created Policy as per Policy.xml<br /><br />5) Test using Powershell script (powershell_cert.ps1)</h3>
