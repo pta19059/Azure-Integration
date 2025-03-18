@@ -16,12 +16,12 @@
         </choose>
 
         <!-- Usa il certificato importato in APIM tramite certificate-id -->
-        <authentication-certificate certificate-id="StefanoCertAPIM" />
+        <authentication-certificate certificate-id="" />
 
         <!-- Verifica certificato con thumbprint atteso -->
         <choose>
             <when condition='@(context.Request.Certificate != null && 
-                               context.Request.Certificate.Thumbprint == "0A7ED5452B035C12F14430598E4B57D1D04407D1")'>
+                               context.Request.Certificate.Thumbprint == "")'>
                 <set-header name="X-Client-Certificate-Verified" exists-action="override">
                     <value>true</value>
                 </set-header>
@@ -35,7 +35,7 @@
         </choose>
 
         <!-- Configura il backend -->
-        <set-backend-service id="apim-generated-policy" backend-id="LogicApp_la-cms-integraiton-010_project-integ_9a2037d5f1767f3bf62d449fb7e171b6" />
+        <set-backend-service id="apim-generated-policy" backend-id="" />
         <set-method id="apim-generated-policy">POST</set-method>
         <rewrite-uri id="apim-generated-policy" template="/manual/paths/invoke/?api-version=2016-06-01&amp;sp=/triggers/manual/run&amp;sv=1.0&amp;sig={{Customers_customer_67d3043381108ebe16178416}}" />
         <set-header id="apim-generated-policy" name="Ocp-Apim-Subscription-Key" exists-action="delete" />
