@@ -1,0 +1,57 @@
+<policies>
+    <inbound>
+        <!-- Base inbound policy -->
+        <base />
+        <!-- Choose policy to check conditions -->
+        <choose>
+            <!-- Condition: If the client certificate is not provided -->
+            <when condition="@(context.Request.Certificate == null)">
+                <!-- Return a 403 Forbidden response -->
+                <return-response>
+                    <set-status code="403" reason="Forbidden" />
+                    <set-body>No client certificate provided.</set-body>
+                </return-response>
+            </when>
+            <!-- Condition: If the client certificate's thumbprint does not match any registered certificate in APIM -->
+            <when condition="@(!context.Deployment.Certificates.Any(c => c.Value.Thumbprint.ToUpper() == context.Request.Certificate.Thumbprint.ToUpper()))">
+                <!-- Return a 403 Forbidden response with a specific reason -->
+                <return-response>
+                    <set-status code="403" reason="Invalid client certificate" />
+                    <set-body>Certificate thumbprint mismatch. The client certificate is not registered in APIM.</set-body>
+                </return-response>
+            </when>
+            <!-- Otherwise, if the client certificate is valid -->
+            <otherwise>
+                <!-- Set a header to indicate the client certificate is validated -->
+                <set-header name="X-Client-Cert-Validated" exists-action="override">
+                    <value>true</value>
+                </set-header>
+            </otherwise>
+        </choose>
+    </inbound>
+    <backend>
+        <!-- Base backend policy -->
+        <base />
+    </backend>
+    <outbound>
+        <!-- Base outbound policy -->
+        <base />
+        <!-- Choose policy to check response status code -->
+        <choose>
+            <!-- Condition: If the response status code is between 200 and 299 -->
+            <when condition="@((int)context.Response.StatusCode >= 200 && (int)context.Response.StatusCode < 300)">
+                <!-- Set the response body to indicate the certificate is valid and the request succeeded -->
+                <set-body>Certificate is valid. Request Succeeded.</set-body>
+            </when>
+        </choose>
+    </outbound>
+    <on-error>
+        <!-- Base on-error policy -->
+        <base />
+        <!-- Return a 403 Forbidden response when an error occurs -->
+        <return-response>
+            <set-status code="403" reason="Certification Validation Failed" />
+            <set-body>@("Your certificate is invalid or does not match the configured certificate in APIM.")</set-body>
+        </return-response>
+    </on-error>
+</policies>
