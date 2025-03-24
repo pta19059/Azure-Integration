@@ -53,7 +53,7 @@
 <div class="CodeBlock-module__codeContainer--dAEis">
 <pre class="CodeBlock-module__code--KUcqT" tabindex="0"><code><span class="hljs-tag">&lt;<span class="hljs-name">set-backend-service</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"apim-generated-policy"</span> <span class="hljs-attr">backend-id</span>=<span class="hljs-string">"LogicApp_la-cms-integraiton-0xx_project-integ_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</span> /&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">set-method</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"apim-generated-policy"</span>&gt;</span>POST<span class="hljs-tag">&lt;/<span class="hljs-name">set-method</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">rewrite-uri</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"apim-generated-policy"</span> <span class="hljs-attr">template</span>=<span class="hljs-string">"/manual/paths/invoke/?api-version=2016-06-01<span class="hljs-symbol">&amp;amp;</span>sp=/triggers/manual/run<span class="hljs-symbol">&amp;amp;</span>sv=1.0<span class="hljs-symbol">&amp;amp;</span>sig={{Customers_customer_67d3043381108ebe16178416}}"</span> /&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">rewrite-uri</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"apim-generated-policy"</span> <span class="hljs-attr">template</span>=<span class="hljs-string">"/manual/paths/invoke/?api-version=2016-06-01<span class="hljs-symbol">&amp;amp;</span>sp=/triggers/manual/run<span class="hljs-symbol">&amp;amp;</span>sv=1.0<span class="hljs-symbol">&amp;amp;</span>sig={{Customers_customer_xxxxxxxxxxxxxxxxxxxxxxxxxx}}"</span> /&gt;</span>
 </code></pre>
 </div>
 </figure>
