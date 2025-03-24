@@ -1,0 +1,73 @@
+<policies>
+    <inbound>
+        <base />
+        <check-header name="X-Azure-FDID" failed-check-httpcode="403" failed-check-error-message="Invalid request." ignore-case="false">
+            <value>{{FrontDoorId}}</value>
+        </check-header>
+        <!-- Check required headers -->
+        <choose>
+            <when condition="@(context.Request.Headers.ContainsKey("X-Client-Certificate") && context.Request.Headers.ContainsKey("X-Client-Thumbprint"))">
+                <!-- Get headers -->
+                <set-variable name="certBase64" value="@(context.Request.Headers.GetValueOrDefault("X-Client-Certificate",""))" />
+                <set-variable name="providedThumbprint" value="@(context.Request.Headers.GetValueOrDefault("X-Client-Thumbprint","").ToUpperInvariant().Replace(" ", ""))" />
+                <!-- Decode certificate from base64 -->
+                <set-variable name="certBytes" value="@(Convert.FromBase64String((string)context.Variables["certBase64"]))" />
+                <!-- Compute SHA1 thumbprint from certificate bytes -->
+                <set-variable name="computedThumbprint" value="@(
+                    BitConverter.ToString(System.Security.Cryptography.SHA1.Create().ComputeHash((byte[])context.Variables["certBytes"])).Replace("-", "").ToUpperInvariant()
+                )" />
+                <!-- Verify thumbprint matches provided thumbprint -->
+                <choose>
+                    <when condition="@((string)context.Variables["computedThumbprint"] == (string)context.Variables["providedThumbprint"])">
+                        <!-- Check if thumbprint exists in APIM loaded certificates -->
+                        <choose>
+                            <when condition="@(!context.Deployment.Certificates.Any(c => c.Value.Thumbprint.ToUpperInvariant() == (string)context.Variables["computedThumbprint"]))">
+                                <!-- Thumbprint not found in APIM certificates -->
+                                <return-response>
+                                    <set-status code="403" reason="Forbidden" />
+                                    <set-body>Client certificate thumbprint is not registered in APIM.</set-body>
+                                </return-response>
+                            </when>
+                            <otherwise>
+                                <!-- Thumbprint verified and exists in APIM certificates -->
+                                <set-header name="X-Client-Verified" exists-action="override">
+                                    <value>true</value>
+                                </set-header>
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <otherwise>
+                        <return-response>
+                            <set-status code="401" reason="Unauthorized" />
+                            <set-body>Client certificate thumbprint validation failed.</set-body>
+                        </return-response>
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                <return-response>
+                    <set-status code="400" reason="Bad Request" />
+                    <set-body>Missing X-Client-Certificate or X-Client-Thumbprint headers.</set-body>
+                </return-response>
+            </otherwise>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+        <choose>
+            <when condition="@((int)context.Response.StatusCode >= 200 && (int)context.Response.StatusCode < 300)">
+                <set-body>Certificate is valid. Request Succeeded.</set-body>
+            </when>
+        </choose>
+    </outbound>
+    <on-error>
+        <base />
+        <return-response>
+            <set-status code="403" reason="Certification Validation Failed" />
+            <set-body>Your certificate is invalid or does not match the configured certificate in APIM.</set-body>
+        </return-response>
+    </on-error>
+</policies>
