@@ -52,9 +52,9 @@
             </otherwise>
         </choose>
         <!-- Conf/Forward Backend -->
-        <set-backend-service id="apim-generated-policy" backend-id="LogicApp_la-cms-integraiton-010_project-integ_9a2037d5f1767f3bf62d449fb7e171b6" />
+        <set-backend-service id="apim-generated-policy" backend-id="LogicApp_la-cms-integraiton-0xx_project-integ_xxxxxxxxxxxxxxxxxxxxxxxxxxx" />
         <set-method id="apim-generated-policy">POST</set-method>
-        <rewrite-uri id="apim-generated-policy" template="/manual/paths/invoke/?api-version=2016-06-01&amp;sp=/triggers/manual/run&amp;sv=1.0&amp;sig={{Customers_customer_67d3043381108ebe16178416}}" />
+        <rewrite-uri id="apim-generated-policy" template="/manual/paths/invoke/?api-version=2016-06-01&amp;sp=/triggers/manual/run&amp;sv=1.0&amp;sig={{Customers_customer_xxxxxxxxxxxxxxxxxxxxx}}" />
         <set-header id="apim-generated-policy" name="Ocp-Apim-Subscription-Key" exists-action="delete" />
     </inbound>
     <backend>
